@@ -1,8 +1,8 @@
 from datetime import datetime
 
 import requests
-from fastapi import HTTPException, status
 from requests.exceptions import HTTPError
+from .dependencies import get_one_month_ago
 
 async def request_info_about_client(token: str):
     api = requests.get(
@@ -12,7 +12,7 @@ async def request_info_about_client(token: str):
     return api
 
 
-async def request_jar_info(api_token,jar_id, from_time, to_time=datetime.now().timestamp()):
+async def request_jar_info(api_token,jar_id, from_time=get_one_month_ago(), to_time=datetime.now().timestamp()):
     """
     Отримує виписку по банці за вказаний проміжок часу
 
