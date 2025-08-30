@@ -2,14 +2,16 @@ from datetime import datetime
 
 import requests
 from requests.exceptions import HTTPError
-from .dependencies import get_one_month_ago
+from .dependencies import get_one_month_ago, request_info_about_client
 
-async def request_info_about_client(token: str):
-    api = requests.get(
-        "https://api.monobank.ua/personal/client-info", headers={"X-Token": token}
-    ).json()
-    print("MONO API CALL")
-    return api
+
+async def request_all_jars(token: str):
+    request= await request_info_about_client(token=token)
+    all_jars=[]
+    for jar in request["jars"]:
+        all_jars.append(jar)
+    return all_jars
+
 
 
 async def request_jar_info(api_token,jar_id, from_time=get_one_month_ago(), to_time=datetime.now().timestamp()):
