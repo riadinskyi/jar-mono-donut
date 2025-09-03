@@ -1,6 +1,25 @@
+from datetime import datetime
+
 from fastapi import HTTPException, status
-from api_v1.payment.schemas import PaymentSearch
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from core.models.order import Order
+from api_v1.payment.schemas import PaymentSearch, CreatePayment
 from api_v1.system.crud import request_jar_info
+
+
+async def issue_new_transaction(data_in:CreatePayment, session:AsyncSession):
+    new_transaction=Order(
+        jar_id=data_in.jar_id,
+        amount=data_in.amount,
+        description=data_in.description,
+        timestamp=datetime.now().timestamp()
+    )
+    session.add(new_transaction)
+    await session.commit()
+    await session.refresh(new_transaction)
+    return new_transaction
+
 
 async def search_transaction(data: PaymentSearch, api_token: str):
     try:
