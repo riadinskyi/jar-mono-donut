@@ -2,7 +2,31 @@ from datetime import datetime
 
 import requests
 from requests.exceptions import HTTPError
-from .dependencies import get_one_month_ago, request_info_about_client
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from core import Admin
+from .schemas import AdminCreate
+from .dependencies import get_one_month_ago, request_info_about_client, hash_password
+
+async def issue_new_admin(data_in: AdminCreate, session:AsyncSession):
+    hs_pw=await hash_password(data_in.password.encode('utf-8'))
+    new_admin=Admin(
+        name=data_in.name,
+        password=hs_pw,
+        permission_id=data_in.permission_id
+    )
+    session.add(new_admin)
+    await session.commit()
+    await session.refresh(new_admin)
+    return new_admin
+
+async def issue_permission_for_admin(permission_id: int, session:AsyncSession):
+    """
+    Випуск дозволу для адміна, щоб керувати базами даних, можна використовувати
+    для ручного так і для автоматичного створення
+    """
+
+    pass
 
 
 async def request_all_jars(token: str):

@@ -1,10 +1,23 @@
 from typing import Annotated
 
 from fastapi import APIRouter
-from fastapi.params import Header, Path
-from api_v1.system.crud import request_jar_info, request_all_jars
+from fastapi.params import Header, Path, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from core.db_helper import db_helper
+from api_v1.system.crud import request_jar_info, request_all_jars, issue_new_admin
+from api_v1.system.schemas import AdminCreate, AdminDataOut
 
 router = APIRouter(prefix="/system",tags=["System"])
+
+@router.post("/create-admin", response_model=AdminDataOut)
+async def create_admin(data_in: AdminCreate,session:AsyncSession=Depends(db_helper.scoped_session_dependency)):
+    """
+    Функція створює адміністратора який зможе керувати інституціями
+    """
+    return await issue_new_admin(data_in=data_in,session=session)
+
+
 
 @router.get("/get_all_jars")
 async def get_client_info(

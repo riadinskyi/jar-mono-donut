@@ -2,6 +2,13 @@ import datetime
 
 import requests
 
+import bcrypt
+
+async def hash_password(password: bytes):
+    salt=bcrypt.gensalt()
+    password=bcrypt.hashpw(password, salt)
+    return password
+
 async def request_info_about_client(token: str):
     api = requests.get(
         "https://api.monobank.ua/personal/client-info", headers={"X-Token": token}
