@@ -16,9 +16,9 @@ class OrderStatus(str, Enum):
 
 
 class Order(Base):
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    jar_id: Mapped[str] = mapped_column(String(100), nullable=False)
     amount: Mapped[int] = mapped_column(nullable=False)
-    timestamp: Mapped[int] = mapped_column(nullable=False)
+    timestamp: Mapped[float] = mapped_column(nullable=False)
 
     status: Mapped[OrderStatus] = mapped_column(
         SQLEnum(OrderStatus, name="order_status", create_constraint=True),
@@ -28,9 +28,3 @@ class Order(Base):
 
     description: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    admin_id: Mapped[int] = mapped_column(
-        ForeignKey("admins.id", name="fk_orders_admins"),
-        nullable=True,
-    )
-
-    signature: Mapped[str] = mapped_column(String(100), nullable=False)
