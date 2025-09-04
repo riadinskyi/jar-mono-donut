@@ -8,19 +8,19 @@ from core import Admin
 from .schemas import AdminCreate
 from .dependencies import get_one_month_ago, request_info_about_client, hash_password
 
-async def issue_new_admin(data_in: AdminCreate, session:AsyncSession):
-    hs_pw=await hash_password(data_in.password.encode('utf-8'))
-    new_admin=Admin(
-        name=data_in.name,
-        password=hs_pw,
-        permission_id=data_in.permission_id
+
+async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
+    hs_pw = await hash_password(data_in.password.encode("utf-8"))
+    new_admin = Admin(
+        name=data_in.name, password=hs_pw, permission_id=data_in.permission_id
     )
     session.add(new_admin)
     await session.commit()
     await session.refresh(new_admin)
     return new_admin
 
-async def issue_permission_for_admin(permission_id: int, session:AsyncSession):
+
+async def issue_permission_for_admin(permission_id: int, session: AsyncSession):
     """
     Випуск дозволу для адміна, щоб керувати базами даних, можна використовувати
     для ручного так і для автоматичного створення
@@ -30,15 +30,16 @@ async def issue_permission_for_admin(permission_id: int, session:AsyncSession):
 
 
 async def request_all_jars(token: str):
-    request= await request_info_about_client(token=token)
-    all_jars=[]
+    request = await request_info_about_client(token=token)
+    all_jars = []
     for jar in request["jars"]:
         all_jars.append(jar)
     return all_jars
 
 
-
-async def request_jar_info(api_token,jar_id, from_time=get_one_month_ago(), to_time=datetime.now().timestamp()):
+async def request_jar_info(
+    api_token, jar_id, from_time=get_one_month_ago(), to_time=datetime.now().timestamp()
+):
     """
     Отримує виписку по банці за вказаний проміжок часу
 
@@ -68,7 +69,7 @@ async def request_jar_info(api_token,jar_id, from_time=get_one_month_ago(), to_t
     # Корекція проміжку, якщо він перевищує ліміт
     actual_to = min(to_time, from_time + max_interval)
 
-    url = f"https://api.monobank.ua/personal/statement/{jar_id}/{from_time}/{actual_to}"
+    url = f"https://api.monobank.ua/personal/statement/{jar_id}/{from_time}/"
 
     try:
         response = requests.get(url, headers={"X-Token": api_token})
