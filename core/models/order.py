@@ -1,6 +1,6 @@
 from enum import Enum
 
-from sqlalchemy import String, ForeignKey, Enum as SQLEnum
+from sqlalchemy import String, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.base import Base
@@ -19,12 +19,10 @@ class Order(Base):
     jar_id: Mapped[str] = mapped_column(String(100), nullable=False)
     amount: Mapped[int] = mapped_column(nullable=False)
     timestamp: Mapped[float] = mapped_column(nullable=False)
-
     status: Mapped[OrderStatus] = mapped_column(
         SQLEnum(OrderStatus, name="order_status", create_constraint=True),
         nullable=False,
         default=OrderStatus.created,
     )
 
-    description: Mapped[str] = mapped_column(String(100), nullable=False)
-
+    comment: Mapped[str] = mapped_column(String(100), nullable=False)
