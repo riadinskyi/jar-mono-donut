@@ -1,79 +1,18 @@
-from datetime import datetime
-
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.payment import Payment
-from core.models.order import Order, OrderStatus
 
-from api_v1.payment.schemas import (
+from api_v1.transaction.schemas import (
     TransactionSearch,
-    OrderCreate,
     CreatePaymentJarRecord,
     PaymentDetailsOut,
 )
-from api_v1.payment.dependencies import (
+from api_v1.transaction.dependencies import (
     add_payment_if_not_exists,
-    change_order_status,
-    connect_order_to_transaction,
-    return_transaction_by_id,
 )
 from api_v1.system.crud import request_jar_info
-
-
-async def validate_order(
-    session: AsyncSession,
-    order: Order,
-):
-
-    if order.status == OrderStatus.paid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Order is paid"
-        )
-
-    validation_approve = await search_transaction(
-        data=TransactionSearch(
-            jar_id=order.jar_id, amount=order.amount, comment=order.comment
-        ),
-        session=session,
-    )
-    transaction_data = await return_transaction_by_id(
-        transaction_id=validation_approve["id"], session=session
-    )
-    if validation_approve:
-        if validation_approve["time"] > order.timestamp:
-            await change_order_status(
-                order=order, status_to_set=OrderStatus.paid, session=session
-            )
-            await connect_order_to_transaction(order, transaction_data, session)
-            raise HTTPException(
-                status_code=status.HTTP_200_OK,
-                detail="Transaction approved. Order is paid",
-            )
-        else:
-            print(validation_approve["time"])
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Transaction is not valid",
-            )
-
-
-async def issue_new_order(data_in: OrderCreate, session: AsyncSession):
-    """
-    Створення нового замовлення
-    :return: Новостворену транзакцію
-    """
-    new_transaction = Order(
-        jar_id=data_in.jar_id,
-        amount=data_in.amount,
-        comment=data_in.comment,
-        timestamp=datetime.now().timestamp(),
-    )
-    session.add(new_transaction)
-    await session.commit()
-    await session.refresh(new_transaction)
-    return new_transaction
 
 
 async def search_transaction(data: TransactionSearch, session: AsyncSession) -> dict:
@@ -121,7 +60,7 @@ async def update_all_jars_payments(
         if new_transaction:
             new_payments.append(new_transaction)
     if new_payments:  # Якщо список НЕ пустий -> повернути створені
-        raise HTTPException(
+        return dict(
             status_code=status.HTTP_201_CREATED,
             detail={"message": "New payments added", "data": new_payments},
         )
