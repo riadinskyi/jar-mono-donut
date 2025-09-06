@@ -1,19 +1,11 @@
 from fastapi import HTTPException, status
-
-from api_v1.system.crud import request_jar_info
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.system.crud import request_jar_info
+from api_v1.transaction.schemas import CreatePaymentJarRecord
 from core.models.order import Order, OrderStatus
 from core.models.payment import Payment
-from api_v1.payment.schemas import CreatePaymentJarRecord, OrderOut
-
-
-async def return_order_by_id(order_id: int, session: AsyncSession) -> OrderOut:
-    stmt = select(Order).where(Order.id == order_id)
-    result = await session.execute(stmt)
-    order = result.scalar_one_or_none()
-    return order
 
 
 async def return_transaction_by_id(transaction_id: int, session: AsyncSession):
@@ -28,39 +20,6 @@ async def return_transaction_by_jar_id_mono(jar_id_mono: str, session: AsyncSess
     result = await session.execute(stmt)
     transaction = result.scalar_one_or_none()
     return transaction is not None
-
-
-async def connect_order_to_transaction(
-    order: Order, transaction: Payment, session: AsyncSession
-):
-
-    if transaction.order_id is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot use this transaction. Reach admin help",
-        )
-    # connect order to transaction record
-    transaction.order_id = order.id
-    session.add(transaction)
-    await session.commit()
-    await session.refresh(transaction)
-
-    # update order data
-    order.payment_id = transaction
-    session.add(order)
-    await session.commit()
-    await session.refresh(order)
-    return order
-
-
-async def change_order_status(
-    order: Order, session: AsyncSession, status_to_set: OrderStatus
-):
-    order.status = status_to_set
-    session.add(order)
-    await session.commit()
-    await session.refresh(order)
-    return order
 
 
 async def add_payment_if_not_exists(
