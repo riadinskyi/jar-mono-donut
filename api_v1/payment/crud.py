@@ -4,18 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.payment import Payment
 
-from api_v1.transaction.schemas import (
-    TransactionSearch,
+from api_v1.payment.schemas import (
+    PaymentSearch,
     CreatePaymentJarRecord,
-    PaymentDetailsOut,
+    PaymentOut,
 )
-from api_v1.transaction.dependencies import (
+from api_v1.payment.dependencies import (
     add_payment_if_not_exists,
 )
 from api_v1.system.crud import request_jar_info
 
 
-async def search_transaction(data: TransactionSearch, session: AsyncSession) -> dict:
+async def search_payment(data: PaymentSearch, session: AsyncSession) -> dict:
     """
     Пошук виконаної транзакції серед уже зареєстрованих у реєстрі.
     :param data: Дані, за якими виконується пошук в базі даних
@@ -31,7 +31,7 @@ async def search_transaction(data: TransactionSearch, session: AsyncSession) -> 
     payment = result.scalars().first()
     if payment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
-    payment_data = PaymentDetailsOut(
+    payment_data = PaymentOut(
         id=payment.id,
         jar_id=payment.jar_id,
         amount=payment.amount,

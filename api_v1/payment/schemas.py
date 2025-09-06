@@ -15,13 +15,13 @@ class CreatePaymentJarRecord(BaseModel):
     time: int
 
 
-class TransactionSearch(BaseModel):
+class PaymentSearch(BaseModel):
     jar_id: str
     amount: amount_description
     comment: str
 
 
-class TransactionDetailsOut(BaseModel):
+class PaymentDetailsOut(BaseModel):
     id: int
     jar_id: str
     amount: int
@@ -29,7 +29,7 @@ class TransactionDetailsOut(BaseModel):
     status: OrderStatus
 
 
-class PaymentDetailsOut(BaseModel):
+class PaymentOut(BaseModel):
     id: int
     jar_id: str
     amount: int
@@ -38,5 +38,5 @@ class PaymentDetailsOut(BaseModel):
 
 
 class TransactionOut(BaseModel):
-    transaction_data: TransactionDetailsOut
+    transaction_data: PaymentDetailsOut
     signature: str

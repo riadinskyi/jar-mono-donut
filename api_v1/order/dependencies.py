@@ -31,15 +31,15 @@ async def connect_order_to_transaction(
     if transaction.order_id is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot use this transaction. Reach admin help",
+            detail="You cannot use this payment. Reach admin help",
         )
-    # connect transaction to transaction record
+    # connect payment to order record
     transaction.order_id = order.id
     session.add(transaction)
     await session.commit()
     await session.refresh(transaction)
 
-    # update transaction data
+    # update payment data
     order.payment_id = transaction
     session.add(order)
     await session.commit()
