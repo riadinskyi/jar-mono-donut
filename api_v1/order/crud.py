@@ -7,13 +7,13 @@ from api_v1.order.dependencies import (
     connect_order_to_transaction,
     change_order_status,
 )
-from api_v1.transaction.crud import search_transaction
+from api_v1.payment.crud import search_payment
 
 from api_v1.order.schemas import (
     OrderCreate,
 )
-from api_v1.transaction.dependencies import return_transaction_by_id
-from api_v1.transaction.schemas import TransactionSearch
+from api_v1.payment.dependencies import return_payment_by_id
+from api_v1.payment.schemas import PaymentSearch
 from core.models.order import Order, OrderStatus
 
 
@@ -27,13 +27,13 @@ async def validate_order(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Order is paid"
         )
 
-    validation_approve = await search_transaction(
-        data=TransactionSearch(
+    validation_approve = await search_payment(
+        data=PaymentSearch(
             jar_id=order.jar_id, amount=order.amount, comment=order.comment
         ),
         session=session,
     )
-    transaction_data = await return_transaction_by_id(
+    transaction_data = await return_payment_by_id(
         transaction_id=validation_approve["id"], session=session
     )
     if validation_approve:

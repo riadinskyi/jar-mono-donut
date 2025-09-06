@@ -1,21 +1,19 @@
-from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.system.crud import request_jar_info
-from api_v1.transaction.schemas import CreatePaymentJarRecord
-from core.models.order import Order, OrderStatus
+from api_v1.payment.schemas import CreatePaymentJarRecord
 from core.models.payment import Payment
 
 
-async def return_transaction_by_id(transaction_id: int, session: AsyncSession):
+async def return_payment_by_id(transaction_id: int, session: AsyncSession):
     stmt = select(Payment).where(Payment.id == transaction_id)
     result = await session.execute(stmt)
     transaction = result.scalar_one_or_none()
     return transaction
 
 
-async def return_transaction_by_jar_id_mono(jar_id_mono: str, session: AsyncSession):
+async def return_payment_by_jar_id_mono(jar_id_mono: str, session: AsyncSession):
     stmt = select(Payment).where(Payment.monobank_transaction_id == jar_id_mono)
     result = await session.execute(stmt)
     transaction = result.scalar_one_or_none()
