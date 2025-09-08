@@ -20,7 +20,7 @@ async def search_payment(data: PaymentSearch, session: AsyncSession) -> dict:
     Пошук виконаної транзакції серед уже зареєстрованих у реєстрі.
     :param data: Дані, за якими виконується пошук в базі даних
     :param session: сесія бази даних
-    :return: знайдена транзація в регістрі
+    :return: транзація з реєстру
     """
     stmt = select(Payment).where(
         Payment.jar_id == data.jar_id,
@@ -44,6 +44,9 @@ async def search_payment(data: PaymentSearch, session: AsyncSession) -> dict:
 async def update_all_jars_payments(
     monobank_token: str, jar_id: str, session: AsyncSession
 ):
+    """
+    Оновити реєстр усіх транзакцій за певним токеном та певним та певним ідентифікатором рахунку
+    """
     transactions = await request_jar_info(jar_id=jar_id, api_token=monobank_token)
     new_payments = []
 
