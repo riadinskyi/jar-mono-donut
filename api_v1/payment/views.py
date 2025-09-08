@@ -2,6 +2,10 @@ from fastapi import APIRouter, Header
 from fastapi.params import Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.payment.dependencies import (
+    return_payment_by_id,
+    return_payment_by_jar_id_mono,
+)
 from core import db_helper
 from core.utils import encode_jwt
 
@@ -11,6 +15,26 @@ from api_v1.payment.schemas import PaymentSearch
 
 
 router = APIRouter(prefix="/payment", tags=["Payment"])
+
+
+@router.get("/get/by-id")
+async def get_payment_by_innie_id(
+    payment_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    """Знайти транзакцію використовуючи внутрішній ідентифікатор"""
+    return await return_payment_by_id(transaction_id=payment_id, session=session)
+
+
+@router.get("/get/by-jar-id-mono")
+async def get_payment_mono_id(
+    monobank_transaction_id: str,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    """Знайти транзакція за унікальний кодом котрий присвоїв Монобанк"""
+    return await return_payment_by_jar_id_mono(
+        jar_id_mono=monobank_transaction_id, session=session
+    )
 
 
 @router.get("/find-transaction")
