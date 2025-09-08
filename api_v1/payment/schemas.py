@@ -1,14 +1,42 @@
-from typing import Optional
+from typing import Optional, Annotated
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from api_v1.order.schemas import amount_description
 from core.models.order import OrderStatus
 
 
+class DescriptionData:
+    monobank_transaction_id_description = Annotated[
+        str,
+        Field(
+            description="Токен отриматий від кабінета розробника Монобанк", min_length=5
+        ),
+    ]
+
+    id_payment_description = Annotated[
+        int, Field(description="Внутрішній ідентифікатор транзакції")
+    ]
+    jar_id_description = Annotated[
+        str,
+        Field(
+            description="Унікальний ідентифікатор отриманий від монобанку про рахунки з акаунту користувача",
+            examples=["fnrgruejdbvhkf", "fhreyfgerf"],
+            min_length=1,
+        ),
+    ]
+    amount_description = Annotated[
+        int,
+        Field(
+            description="Ціле число помножене на сто (12.34 грн -> 1234)",
+            examples=[1000, 5000],
+            gt=0,
+        ),
+    ]
+
+
 class CreatePaymentJarRecord(BaseModel):
-    jar_id: str
-    monobank_transaction_id: str
+    monobank_transaction_id: DescriptionData.monobank_transaction_id_description
+    jar_id: DescriptionData.jar_id_description
     amount: int
     description: Optional[str]
     comment: Optional[str]
@@ -16,22 +44,22 @@ class CreatePaymentJarRecord(BaseModel):
 
 
 class PaymentSearch(BaseModel):
-    jar_id: str
-    amount: amount_description
+    jar_id: DescriptionData.jar_id_description
+    amount: DescriptionData.amount_description
     comment: str
 
 
 class PaymentDetailsOut(BaseModel):
-    id: int
-    jar_id: str
+    id: DescriptionData.id_payment_description
+    jar_id: DescriptionData.jar_id_description
     amount: int
     comment: str
     status: OrderStatus
 
 
 class PaymentOut(BaseModel):
-    id: int
-    jar_id: str
+    id: DescriptionData.id_payment_description
+    jar_id: DescriptionData.jar_id_description
     amount: int
     comment: str
     time: int

@@ -14,7 +14,6 @@ from api_v1.order.schemas import (
     OrderOut,
 )
 from core import db_helper
-from core.utils import encode_jwt
 
 router = APIRouter(prefix="/order", tags=["Order"])
 
@@ -37,20 +36,16 @@ async def confirm_order(
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     """
-    Перевірка підтрвердження замовлення
-
-    Підтвердити надання замовлення, якщо не виконані умови для правильної донації.
-    Тобто знайти транзакцію та підтвердити її власноруч використовуючи платіжнку інструкцію.
-    Для цього потрібно також прикріпити індивідуальний ідентифікатор з виписки банки.
+    Перевірка підтвердження замовлення
     """
     order_by_id = await return_order_by_id(order_id, session)
-    data = await validate_order(
-        session=session,
-        order=order_by_id,
-    )
 
-    return {
-        "status_code": 200,
-        "comment": "Transaction approved. Order is paid",
-        "data": data,
-    }
+    await validate_order(session=session, order=order_by_id)
+
+    return OrderOut(
+        id=order_by_id.id,
+        jar_id=order_by_id.jar_id,
+        status=order_by_id.status,
+        amount=order_by_id.amount,
+        comment="Transaction approved. Order is paid",
+    )
