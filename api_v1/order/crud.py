@@ -69,3 +69,9 @@ async def issue_new_order(data_in: OrderCreate, session: AsyncSession):
     await session.commit()
     await session.refresh(new_transaction)
     return new_transaction
+
+
+async def delete_order(order: Order, session: AsyncSession):
+    await session.delete(order)
+    await session.commit()
+    raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="Order deleted")
