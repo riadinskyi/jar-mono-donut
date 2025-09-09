@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api_v1.order.crud import (
     issue_new_order,
     validate_order,
+    delete_order,
 )
 from api_v1.order.dependencies import return_order_by_id
 from api_v1.order.schemas import (
@@ -55,4 +56,19 @@ async def confirm_order(
         status=order_by_id.status,
         amount=order_by_id.amount,
         comment="Transaction approved. Order is paid",
+    )
+
+
+@router.delete("/delete")
+async def order_delete(
+    order_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    """
+    Видалення замовлення за номером замовлення
+    """
+    order_id = await return_order_by_id(order_id=order_id, session=session)
+    return await delete_order(
+        order=order_id,
+        session=session,
     )
