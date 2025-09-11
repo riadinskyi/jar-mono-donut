@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Admin
 from .schemas import AdminCreate
-from .dependencies import get_one_month_ago, request_info_about_client, hash_password
+from .dependencies import get_one_month_ago, request_info_about_client
+from core.utils import hash_password
 
 
 async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
@@ -90,3 +91,7 @@ async def request_jar_info(
     except Exception as err:
         print(f"Інша помилка: {err}")
         raise
+
+
+async def admin_delete(admin: Admin, session: AsyncSession):
+    pass

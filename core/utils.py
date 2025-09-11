@@ -1,8 +1,15 @@
 import uuid
 from datetime import timedelta, datetime
 
+import bcrypt
 import jwt
 from core.config import settings
+
+
+async def hash_password(password: bytes):
+    salt = bcrypt.gensalt()
+    password = bcrypt.hashpw(password, salt)
+    return password
 
 
 async def encode_jwt(
