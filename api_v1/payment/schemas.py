@@ -5,11 +5,22 @@ from pydantic import BaseModel, Field
 from core.models.order import OrderStatus
 
 
-class DescriptionData:
+class PaymentDescriptionData:
     monobank_transaction_id_description = Annotated[
         str,
         Field(
-            description="Токен отриматий від кабінета розробника Монобанк", min_length=5
+            title="monobank_transaction_id",
+            description="Токен отриматий від кабінета розробника Монобанк",
+            min_length=5,
+        ),
+    ]
+
+    monobank_payment_id_query = Annotated[
+        str,
+        Field(
+            description="Унікальний ідентифікатор транзакції, присвоєний Монобанком",
+            examples=["qweasd123", "trn_9876543210"],
+            min_length=3,
         ),
     ]
 
@@ -32,39 +43,48 @@ class DescriptionData:
             gt=0,
         ),
     ]
+    comment_description = Annotated[
+        str,
+        Field(
+            description="Коментар за яким буде проведена перевірка на наявність в реєстрі такої транзакції"
+        ),
+    ]
 
 
-class CreatePaymentJarRecord(BaseModel):
-    monobank_transaction_id: DescriptionData.monobank_transaction_id_description
-    jar_id: DescriptionData.jar_id_description
-    amount: int
-    description: Optional[str]
-    comment: Optional[str]
+class PaymentBase(BaseModel):
+    jar_id: PaymentDescriptionData.jar_id_description
+    amount: PaymentDescriptionData.amount_description
+    comment: PaymentDescriptionData.comment_description
+
+
+class PaymentSearch(PaymentBase):
+    pass
+
+
+class SearchPaymentInnieID(BaseModel):
+    id_payment: PaymentDescriptionData.id_payment_description
+
+
+class CreatePaymentJarRecord(PaymentBase):
+    comment: Optional[str] = None
+    monobank_transaction_id: str = Field(alias="id")
+    description: Optional[str] = None
     time: int
 
 
-class PaymentSearch(BaseModel):
-    jar_id: DescriptionData.jar_id_description
-    amount: DescriptionData.amount_description
-    comment: str
-
-
-class PaymentDetailsOut(BaseModel):
-    id: DescriptionData.id_payment_description
-    jar_id: DescriptionData.jar_id_description
-    amount: int
-    comment: str
+class PaymentDetailsOut(PaymentBase):
+    id: PaymentDescriptionData.id_payment_description
     status: OrderStatus
 
 
 class PaymentOut(BaseModel):
-    id: DescriptionData.id_payment_description
-    jar_id: DescriptionData.jar_id_description
-    amount: int
-    comment: str
-    time: int
+    id: PaymentDescriptionData.id_payment_description
+    jar_id: PaymentDescriptionData.jar_id_description
+    amount: PaymentDescriptionData.amount_description
+    comment: Optional[str] = None
+    time: float
 
 
-class TransactionOut(BaseModel):
-    transaction_data: PaymentDetailsOut
+class SignedPaymentOut(BaseModel):
+    payment_data: PaymentDetailsOut
     signature: str

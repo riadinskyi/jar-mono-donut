@@ -11,34 +11,32 @@ from core.utils import encode_jwt
 
 from api_v1.order.crud import search_payment
 from api_v1.payment.crud import update_all_jars_payments
-from api_v1.payment.schemas import PaymentSearch
-
+from api_v1.payment.schemas import PaymentSearch, PaymentDescriptionData
 
 router = APIRouter(prefix="/payment", tags=["Payment"])
 
 
 @router.get("/get/by-id")
 async def get_payment_by_innie_id(
-    payment_id: int,
+    payment_id: PaymentDescriptionData.id_payment_description = Query(...),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    """Знайти транзакцію використовуючи внутрішній ідентифікатор"""
     return await return_payment_by_id(transaction_id=payment_id, session=session)
 
 
 @router.get("/get/by-jar-id-mono")
 async def get_payment_mono_id(
-    monobank_transaction_id: str,
+    monobank_payment_id: PaymentDescriptionData.monobank_payment_id_query = Query(...),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     """Знайти транзакція за унікальний кодом котрий присвоїв Монобанк"""
     return await return_payment_by_jar_id_mono(
-        jar_id_mono=monobank_transaction_id, session=session
+        jar_id_mono=monobank_payment_id, session=session
     )
 
 
-@router.get("/find-transaction")
-async def find_transaction(
+@router.get("/find-payment")
+async def find_payment(
     data: PaymentSearch = Query(),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
