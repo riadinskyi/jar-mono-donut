@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.order.dependencies import (
-    connect_order_to_transaction,
+    connect_order_to_payment,
     change_order_status,
 )
 from api_v1.payment.crud import search_payment
@@ -41,7 +41,7 @@ async def validate_order(
             await change_order_status(
                 order=order, status_to_set=OrderStatus.paid, session=session
             )
-            await connect_order_to_transaction(order, transaction_data, session)
+            await connect_order_to_payment(order, transaction_data, session)
             return dict(
                 data=order,
                 status_code=status.HTTP_200_OK,

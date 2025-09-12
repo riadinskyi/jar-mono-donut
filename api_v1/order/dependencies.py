@@ -24,7 +24,7 @@ async def change_order_status(
     return order
 
 
-async def connect_order_to_transaction(
+async def connect_order_to_payment(
     order: Order, transaction: Payment, session: AsyncSession
 ):
 
