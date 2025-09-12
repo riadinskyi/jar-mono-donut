@@ -174,5 +174,4 @@ cython_debug/
 .pypirc
 /certs/
 
-# Ensure test artifact never tracked
 monotest.py
