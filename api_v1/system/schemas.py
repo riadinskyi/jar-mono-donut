@@ -2,12 +2,14 @@ from pydantic import BaseModel
 
 
 class AdminBase(BaseModel):
+    user_name: str
     name: str
     password: str
 
 
 class AdminCreate(AdminBase):
     permission_id: int
+
 
 class AdminDataOut(BaseModel):
     id: int

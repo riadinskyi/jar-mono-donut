@@ -1,13 +1,11 @@
 import datetime
-
 import requests
 
-import bcrypt
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-async def hash_password(password: bytes):
-    salt=bcrypt.gensalt()
-    password=bcrypt.hashpw(password, salt)
-    return password
+from core.models.admin import Admin
+
 
 async def request_info_about_client(token: str):
     api = requests.get(
@@ -16,10 +14,20 @@ async def request_info_about_client(token: str):
     print("MONO API CALL")
     return api
 
-def get_one_month_ago()->int:
+
+async def check_user_name_availability(user_name: str, session: AsyncSession) -> bool:
+    """
+    Перевірити, чи існує user_name, якщо так -> True
+    """
+    stmt = select(Admin).where(Admin.user_name == user_name)
+    result = await session.execute(stmt)
+    if result.scalars().first():
+        return True
+    return False
+
+
+def get_one_month_ago() -> int:
     today = datetime.datetime.now().date()
     result = today - datetime.timedelta(days=30)
-    result=result.strftime("%s")
+    result = result.strftime("%s")
     return int(result)
-
-
