@@ -173,3 +173,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 /certs/
+
+# Ensure test artifact never tracked
+monotest.py
