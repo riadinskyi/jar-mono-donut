@@ -53,10 +53,10 @@ async def update_all_jars_payments(
     for transaction in transactions:
         record = CreatePaymentJarRecord(
             jar_id=jar_id,
-            monobank_transaction_id=transaction["id"],
+            id=transaction["id"],
             amount=transaction["amount"],
-            description=transaction.get("description"),
-            comment=transaction.get("comment"),
+            description=transaction.get("description") or None,
+            comment=transaction.get("comment") or None,
             time=transaction["time"],
         )
         new_transaction = await add_payment_if_not_exists(record, session)
