@@ -19,11 +19,11 @@ from core import db_helper
 router = APIRouter(prefix="/order", tags=["Order"])
 
 
-@router.get("/get/by-id")
+@router.get("/get/by-id", response_model=OrderOut)
 async def get_order_by_id(
     order_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
 ):
-    return return_order_by_id(order_id=order_id, session=session)
+    return await return_order_by_id(order_id=order_id, session=session)
 
 
 @router.post("/create")
