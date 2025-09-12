@@ -1,18 +1,34 @@
 from datetime import datetime
-
+from fastapi import HTTPException, status
 import requests
 from requests.exceptions import HTTPError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Admin
 from .schemas import AdminCreate
-from .dependencies import get_one_month_ago, request_info_about_client, hash_password
+from .dependencies import (
+    get_one_month_ago,
+    request_info_about_client,
+    check_user_name_availability,
+)
+from core.utils import hash_password
 
 
 async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
     hs_pw = await hash_password(data_in.password.encode("utf-8"))
+    check_user_name = await check_user_name_availability(
+        user_name=data_in.user_name, session=session
+    )
+    if check_user_name:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="user_name already exists",
+        )
     new_admin = Admin(
-        name=data_in.name, password=hs_pw, permission_id=data_in.permission_id
+        user_name=data_in.user_name,
+        name=data_in.name,
+        password=hs_pw,
+        permission_id=data_in.permission_id,
     )
     session.add(new_admin)
     await session.commit()
@@ -90,3 +106,7 @@ async def request_jar_info(
     except Exception as err:
         print(f"Інша помилка: {err}")
         raise
+
+
+async def admin_delete(admin: Admin, session: AsyncSession):
+    pass
