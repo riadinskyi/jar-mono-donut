@@ -11,6 +11,8 @@ async def return_order_by_id(order_id: int, session: AsyncSession) -> Order:
     stmt = select(Order).where(Order.id == order_id)
     result = await session.execute(stmt)
     order = result.scalar_one_or_none()
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     return order
 
 
