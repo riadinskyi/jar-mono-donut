@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +11,8 @@ async def return_payment_by_id(transaction_id: int, session: AsyncSession):
     stmt = select(Payment).where(Payment.id == transaction_id)
     result = await session.execute(stmt)
     transaction = result.scalar_one_or_none()
+    if transaction is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     return transaction
 
 
@@ -17,7 +20,9 @@ async def return_payment_by_jar_id_mono(jar_id_mono: str, session: AsyncSession)
     stmt = select(Payment).where(Payment.monobank_transaction_id == jar_id_mono)
     result = await session.execute(stmt)
     transaction = result.scalar_one_or_none()
-    return transaction is not None
+    if transaction is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    return transaction
 
 
 async def add_payment_if_not_exists(
