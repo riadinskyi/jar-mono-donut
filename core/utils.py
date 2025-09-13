@@ -1,5 +1,5 @@
 import uuid
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 import bcrypt
 import jwt
@@ -20,7 +20,7 @@ async def encode_jwt(
     expire_timedelta: timedelta | None = None,
 ) -> str:
     to_encode = payload.copy()
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     if expire_timedelta:
         expire = now + expire_timedelta
     else:
@@ -37,3 +37,14 @@ async def encode_jwt(
         algorithm=algorithm,
     )
     return encoded
+
+
+async def decode_jwt(
+    token: str,
+    public_key: str = settings.jwt.public_jwt_path.read_text(),
+    algorithms: list[str] | None = None,
+) -> dict:
+    if algorithms is None:
+        algorithms = [settings.jwt.algorithm]
+    payload = jwt.decode(token, public_key, algorithms=algorithms)
+    return payload
