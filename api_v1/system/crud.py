@@ -14,6 +14,15 @@ from .dependencies import (
 from core.utils import hash_password
 
 
+async def get_admin_by_id(admin_id: int, session: AsyncSession):
+    admin = await session.get(Admin, admin_id)
+    if admin is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Admin not found"
+        )
+    return admin
+
+
 async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
     hs_pw = await hash_password(data_in.password.encode("utf-8"))
     check_user_name = await check_user_name_availability(
