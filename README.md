@@ -1,10 +1,13 @@
 ## Mono Jar Donut
 
-ßeta Open Banking рішення для клієнтів Monobank.  
+### ßeta Open Banking рішення для клієнтів Monobank.  
 API для автоматичної обробки платежів, що надійшли на рахунок у банку, з подальшим підтвердженням транзакцій за коментарем та сумою сплати.
 
+### 💸 Support projct
 <a href="https://send.monobank.ua/jar/6dpG1MjjQb" target="_blank"><img src="https://github.com/riadinskyi/city-alert-registry/blob/master/support-with-monobank-git.png?raw=true" alt="Support with Monobank" height="41" width="180"></a>
 
+
+## Important 
 
 > [!Warning]
 > Доступ до API та використання його вмісту здійснюються **виключно на власний розсуд і ризик**.  
