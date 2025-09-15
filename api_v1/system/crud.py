@@ -15,6 +15,24 @@ from core.utils import hash_password
 
 
 async def get_admin_by_id(admin_id: int, session: AsyncSession):
+    """
+    Retrieves an admin object by its unique identifier from the database. If
+    the admin does not exist, an HTTPException with a 404 status code is
+    raised. This function is asynchronous and utilizes an asynchronous
+    database session.
+
+    :param admin_id: The unique identifier of the admin to be retrieved.
+    :type admin_id: int
+
+    :param session: An active asynchronous database session used for querying.
+    :type session: AsyncSession
+
+    :return: The retrieved admin object corresponding to the provided admin_id.
+    :rtype: Admin
+
+    :raises HTTPException: Raised with a 404 status code if the admin with the
+        specified admin_id is not found.
+    """
     admin = await session.get(Admin, admin_id)
     if admin is None:
         raise HTTPException(
