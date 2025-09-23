@@ -39,6 +39,16 @@ async def encode_jwt(
     return encoded
 
 
+async def encode_refresh_jwt(
+    payload: dict,
+    expire_minutes: int = settings.jwt.refresh_token_expire_minutes,
+) -> str:
+
+    payload_with_type = payload.copy()
+    payload_with_type.update({"typ": "refresh"})
+    return await encode_jwt(payload_with_type, expire_minutes=expire_minutes)
+
+
 async def decode_jwt(
     token: str,
     public_key: str = settings.jwt.public_jwt_path.read_text(),
