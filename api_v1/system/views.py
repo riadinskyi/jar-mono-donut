@@ -6,12 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db_helper import db_helper
 from api_v1.system.crud import (
-    request_jar_info,
-    request_all_jars,
     issue_new_admin,
     get_admin_by_id,
     admin_delete,
 )
+from api_v1.system.dependencies import request_all_jars, request_jar_info
 from api_v1.system.schemas import AdminCreate, AdminDataOut
 
 router = APIRouter(prefix="/system", tags=["System"])
@@ -47,6 +46,18 @@ async def delete_admin_by_id(
     """Видалити адміністратора за ID"""
     admin = await get_admin_by_id(admin_id=admin_id, session=session)
     return await admin_delete(admin=admin, session=session)
+
+
+@router.post("/issue_new_permission")
+async def issue_new_permission(
+    admin_id_: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+):
+    """
+    Надання нового дозволу для адміністратора
+    :return:
+    """
+
+    pass
 
 
 @router.get("/get_all_jars")
