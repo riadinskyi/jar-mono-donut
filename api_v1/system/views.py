@@ -10,13 +10,14 @@ from api_v1.system.crud import (
     request_all_jars,
     issue_new_admin,
     get_admin_by_id,
+    admin_delete,
 )
 from api_v1.system.schemas import AdminCreate, AdminDataOut
 
 router = APIRouter(prefix="/system", tags=["System"])
 
 
-@router.post("/create-admin", response_model=AdminDataOut)
+@router.post("/admin/create", response_model=AdminDataOut)
 async def create_admin(
     data_in: AdminCreate,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -27,7 +28,7 @@ async def create_admin(
     return await issue_new_admin(data_in=data_in, session=session)
 
 
-@router.get("/get_admin_info", response_model=AdminDataOut)
+@router.get("/admin/get_info", response_model=AdminDataOut)
 async def get_admin_info(
     admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
 ):
@@ -37,6 +38,15 @@ async def get_admin_info(
     :return: Дані що знайшлися про адміністратора з таким ID
     """
     return await get_admin_by_id(admin_id=admin_id, session=session)
+
+
+@router.delete("/admin/delete")
+async def delete_admin_by_id(
+    admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+):
+    """Видалити адміністратора за ID"""
+    admin = await get_admin_by_id(admin_id=admin_id, session=session)
+    return await admin_delete(admin=admin, session=session)
 
 
 @router.get("/get_all_jars")
