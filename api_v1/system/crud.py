@@ -2,6 +2,7 @@ from datetime import datetime
 from fastapi import HTTPException, status
 import requests
 from requests.exceptions import HTTPError
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Admin
@@ -136,4 +137,7 @@ async def request_jar_info(
 
 
 async def admin_delete(admin: Admin, session: AsyncSession):
-    pass
+    stmt = delete(Admin).where(Admin.id == admin.id)
+    await session.execute(stmt)
+    await session.commit()
+    return HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="Admin deleted")
