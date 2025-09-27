@@ -2,10 +2,26 @@ from fastapi import HTTPException, status
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core import Admin
-from .schemas import AdminCreate
+from core import Admin, Permission
+from .schemas import AdminCreate, AdminPermission
 from .dependencies import check_user_name_availability
 from core.utils import hash_password
+
+
+async def issue_new_permission_for_admin(
+    admin: Admin, permission: AdminPermission, session: AsyncSession
+):
+    """
+    Випуск дозволу для адміністратора.
+    """
+    new_permission = Permission(
+        permission_type=permission,
+        admin_id=admin.id,
+    )
+    session.add(new_permission)
+    await session.commit()
+    await session.refresh(new_permission)
+    return new_permission
 
 
 async def get_admin_by_id(admin_id: int, session: AsyncSession):
