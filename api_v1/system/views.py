@@ -9,9 +9,10 @@ from api_v1.system.crud import (
     issue_new_admin,
     get_admin_by_id,
     admin_delete,
+    issue_new_permission_for_admin,
 )
 from api_v1.system.dependencies import request_all_jars, request_jar_info
-from api_v1.system.schemas import AdminCreate, AdminDataOut
+from api_v1.system.schemas import AdminCreate, AdminDataOut, AdminPermission
 
 router = APIRouter(prefix="/system", tags=["System"])
 
@@ -50,14 +51,18 @@ async def delete_admin_by_id(
 
 @router.post("/issue_new_permission")
 async def issue_new_permission(
-    admin_id_: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+    admin_id: int,
+    permission_type: AdminPermission,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     """
     Надання нового дозволу для адміністратора
     :return:
     """
-
-    pass
+    admin = await get_admin_by_id(admin_id=admin_id, session=session)
+    return await issue_new_permission_for_admin(
+        admin=admin, permission=permission_type, session=session
+    )
 
 
 @router.get("/get_all_jars")
