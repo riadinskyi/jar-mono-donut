@@ -24,6 +24,15 @@ async def issue_new_permission_for_admin(
     return new_permission
 
 
+async def delete_permission_for_admin(permission_id: int, session: AsyncSession):
+    stmt = delete(Permission).where(Permission.id == permission_id)
+    await session.execute(stmt)
+    await session.commit()
+    return HTTPException(
+        status_code=status.HTTP_204_NO_CONTENT, detail="Permission deleted"
+    )
+
+
 async def get_admin_by_id(admin_id: int, session: AsyncSession):
     """
     Retrieves an admin object by its unique identifier from the database. If
