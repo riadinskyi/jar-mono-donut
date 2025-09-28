@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter
 from fastapi.params import Header, Path, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.util import await_only
 
 from core.db_helper import db_helper
 from api_v1.system.crud import (
@@ -10,6 +11,7 @@ from api_v1.system.crud import (
     get_admin_by_id,
     admin_delete,
     issue_new_permission_for_admin,
+    delete_permission_for_admin,
 )
 from api_v1.system.dependencies import request_all_jars, request_jar_info
 from api_v1.system.schemas import AdminCreate, AdminDataOut, AdminPermission
@@ -49,7 +51,7 @@ async def delete_admin_by_id(
     return await admin_delete(admin=admin, session=session)
 
 
-@router.post("/issue_new_permission")
+@router.post("/permission/issue")
 async def issue_new_permission(
     admin_id: int,
     permission_type: AdminPermission,
@@ -62,6 +64,19 @@ async def issue_new_permission(
     admin = await get_admin_by_id(admin_id=admin_id, session=session)
     return await issue_new_permission_for_admin(
         admin=admin, permission=permission_type, session=session
+    )
+
+
+@router.delete("/permission/delete")
+async def permission_delete(
+    permission_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    """
+    Видалення вже існуючого дозволу
+    """
+    return await delete_permission_for_admin(
+        permission_id=permission_id, session=session
     )
 
 
