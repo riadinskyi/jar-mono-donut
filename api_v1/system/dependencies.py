@@ -1,25 +1,21 @@
 import datetime
 import requests
+from fastapi import HTTPException, status
 
 from requests.exceptions import HTTPError
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.system.schemas import AdminPermission
+from core import Permission
 from core.models.admin import Admin
 
 
-async def request_info_about_client(token: str):
-    api = requests.get(
-        "https://api.monobank.ua/personal/client-info", headers={"X-Token": token}
-    ).json()
-    print("MONO API CALL")
-    return api
-
-
 async def get_all_permissions_by_admin(
-        session: AsyncSession,
-        admin_id: int,
+    admin_id: int,
+    session: AsyncSession,
+    admin_id: int,
 ):
     """
     Повернути всі видані дозволи для певного адміністратора.
@@ -28,6 +24,33 @@ async def get_all_permissions_by_admin(
     result = await session.execute(stmt)
     permissions = result.scalars().all()
     return permissions
+
+
+async def protect_same_permission(
+    admin_id: int, permission: AdminPermission, session: AsyncSession
+):
+    """
+    Checks if the given permission is already assigned. If it is, raises a 409 Conflict 🚫.
+    """
+    all_permissions = await get_all_permissions_by_admin(
+        admin_id=admin_id, session=session
+    )
+
+    permission_exists = any(p.permission_type == permission for p in all_permissions)
+
+    if permission_exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Permission '{permission.name}' already exists for admin ID {admin_id}. Duplication avoided.",
+        )
+
+
+async def request_info_about_client(token: str):
+    api = requests.get(
+        "https://api.monobank.ua/personal/client-info", headers={"X-Token": token}
+    ).json()
+    print("MONO API CALL")
+    return api
 
 
 async def check_user_name_availability(user_name: str, session: AsyncSession) -> bool:
@@ -56,9 +79,7 @@ async def request_all_jars(token: str):
     return all_jars
 
 
-async def request_jar_info(
-    api_token, jar_id, from_time=None, to_time=None
-):
+async def request_jar_info(api_token, jar_id, from_time=None, to_time=None):
     """
     Отримує виписку по банці за вказаний проміжок часу
 
