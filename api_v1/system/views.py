@@ -3,17 +3,21 @@ from typing import Annotated
 from fastapi import APIRouter
 from fastapi.params import Header, Path, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from core.db_helper import db_helper
 from api_v1.system.crud import (
     issue_new_admin,
     get_admin_by_id,
     admin_delete,
-    issue_new_permission_for_admin,
+    issue_permission_for_admin,
     delete_permission_for_admin,
+    get_all_permissions_by_admin,
 )
-from api_v1.system.dependencies import request_all_jars, request_jar_info
+from api_v1.system.dependencies import (
+    request_all_jars,
+    request_jar_info,
+    get_all_permissions_by_admin,
+)
 from api_v1.system.schemas import AdminCreate, AdminDataOut, AdminPermission
 
 router = APIRouter(prefix="/system", tags=["System"])
@@ -62,9 +66,16 @@ async def issue_new_permission(
     :return:
     """
     admin = await get_admin_by_id(admin_id=admin_id, session=session)
-    return await issue_new_permission_for_admin(
+    return await issue_permission_for_admin(
         admin=admin, permission=permission_type, session=session
     )
+
+
+@router.get("/admin/all_permissions/{admin_id}")
+async def get_all_permissions(
+    admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+):
+    return await get_all_permissions_by_admin(admin_id=admin_id, session=session)
 
 
 @router.delete("/permission/delete")
