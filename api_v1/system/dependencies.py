@@ -17,6 +17,19 @@ async def request_info_about_client(token: str):
     return api
 
 
+async def get_all_permissions_by_admin(
+        session: AsyncSession,
+        admin_id: int,
+):
+    """
+    Повернути всі видані дозволи для певного адміністратора.
+    """
+    stmt = select(Permission).where(Permission.admin_id == admin_id)
+    result = await session.execute(stmt)
+    permissions = result.scalars().all()
+    return permissions
+
+
 async def check_user_name_availability(user_name: str, session: AsyncSession) -> bool:
     """
     Перевірити, чи існує user_name, якщо так -> True
