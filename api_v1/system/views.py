@@ -11,12 +11,12 @@ from api_v1.system.crud import (
     admin_delete,
     issue_permission_for_admin,
     delete_permission_for_admin,
-    get_all_permissions_by_admin,
 )
 from api_v1.system.dependencies import (
     request_all_jars,
     request_jar_info,
     get_all_permissions_by_admin,
+    protect_same_permission,
 )
 from api_v1.system.schemas import AdminCreate, AdminDataOut, AdminPermission
 
@@ -65,6 +65,9 @@ async def issue_new_permission(
     Надання нового дозволу для адміністратора
     :return:
     """
+    # Перевірка чи не було випущено дозволу для цього адміністратора
+    await protect_same_permission(admin_id, permission_type, session)
+
     admin = await get_admin_by_id(admin_id=admin_id, session=session)
     return await issue_permission_for_admin(
         admin=admin, permission=permission_type, session=session

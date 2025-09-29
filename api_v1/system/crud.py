@@ -8,23 +8,6 @@ from .dependencies import check_user_name_availability
 from core.utils import hash_password
 
 
-async def get_all_permissions_by_admin(
-    session: AsyncSession,
-    admin_id: int,
-):
-    """
-    Повернути всі видані дозволи для певного адміністратора.
-    (Return all granted permissions for a specific administrator.)
-    """
-    stmt = select(Permission).where(Permission.admin_id == admin_id)
-
-    result = await session.execute(stmt)
-
-    permissions = result.scalars().all()
-
-    return permissions
-
-
 async def issue_permission_for_admin(
     admin: Admin, permission: AdminPermission, session: AsyncSession
 ):
