@@ -15,7 +15,6 @@ from core.models.admin import Admin
 async def get_all_permissions_by_admin(
     admin_id: int,
     session: AsyncSession,
-    admin_id: int,
 ):
     """
     Повернути всі видані дозволи для певного адміністратора.
@@ -26,11 +25,30 @@ async def get_all_permissions_by_admin(
     return permissions
 
 
+async def check_permission_to_perform(
+    admin_id: int, permission: AdminPermission, session: AsyncSession
+) -> bool:
+    """Перевірити чи є в адміністратора дозвіл на виконання цієї дії"""
+    personal_permissions = await get_all_permissions_by_admin(
+        admin_id=admin_id, session=session
+    )
+
+    permission_exists = any(
+        p.permission_type == permission for p in personal_permissions
+    )
+    if not permission_exists:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Permission '{permission.name}' not allowed for admin ID {admin_id}",
+        )
+    return True
+
+
 async def protect_same_permission(
     admin_id: int, permission: AdminPermission, session: AsyncSession
 ):
     """
-    Checks if the given permission is already assigned. If it is, raises a 409 Conflict 🚫.
+    Checks if the given permission is already assigned.
     """
     all_permissions = await get_all_permissions_by_admin(
         admin_id=admin_id, session=session
