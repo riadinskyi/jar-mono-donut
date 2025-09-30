@@ -2,8 +2,8 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.system.crud import request_jar_info
 from api_v1.payment.schemas import CreatePaymentJarRecord
+from api_v1.system.dependencies import request_jar_info
 from core.models.payment import Payment
 
 
