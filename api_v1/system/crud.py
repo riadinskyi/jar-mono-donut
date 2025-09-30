@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
-from sqlalchemy import delete, select
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Admin, Permission
 from .schemas import AdminCreate, AdminPermission
-from .dependencies import check_user_name_availability
+from .dependencies import check_user_name_availability, get_all_permissions_by_admin
 from core.utils import hash_password
 
 
@@ -83,7 +83,24 @@ async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
 
 
 async def admin_delete(admin: Admin, session: AsyncSession):
+    # Видалення всіх дозволів, які були закріплені за адміністратором.
+    admin_permissions_id = []
+    admin_permission_data = await get_all_permissions_by_admin(
+        admin_id=admin.id, session=session
+    )
+    for permission in admin_permission_data:
+        admin_permissions_id.append(permission.id)
+    for permission_id in admin_permissions_id:
+        await delete_permission_for_admin(permission_id=permission_id, session=session)
+
+    # Видалення самого адміністратора
     stmt = delete(Admin).where(Admin.id == admin.id)
     await session.execute(stmt)
     await session.commit()
-    return HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="Admin deleted")
+    return HTTPException(
+        status_code=status.HTTP_204_NO_CONTENT,
+        detail={
+            "admin_details": f"Admin {admin.id} has been deleted",
+            "permission_details": f"Permissions: {admin_permissions_id} for admin #{admin.id} has been deleted",
+        },
+    )
