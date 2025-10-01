@@ -46,9 +46,7 @@ async def get_admin_info(
     admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
 ):
     """
-
-    :return: Дані що
-    знайшлися про адміністратора з таким ID
+    Дані що знайшлися про адміністратора з таким ID
     """
     return await get_admin_by_id(admin_id=admin_id, session=session)
 
