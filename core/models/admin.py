@@ -9,4 +9,3 @@ class Admin(Base):
     user_name: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
-    permission_id: Mapped[int] = mapped_column(nullable=True)
