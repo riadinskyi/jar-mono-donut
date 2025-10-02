@@ -3,7 +3,8 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Admin, Permission
-from .schemas import AdminCreate, AdminPermission
+from .schemas import AdminCreate
+from core.enums import AdminPermission
 from .dependencies import check_user_name_availability, get_all_permissions_by_admin
 from core.utils import hash_password
 

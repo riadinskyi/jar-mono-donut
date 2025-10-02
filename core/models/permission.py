@@ -1,7 +1,7 @@
 from core.base import Base
 from sqlalchemy import Enum as SQLEnum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from api_v1.system.schemas import AdminPermission
+from core.enums import AdminPermission
 
 
 class Permission(Base):

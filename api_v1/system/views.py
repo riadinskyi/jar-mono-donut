@@ -18,7 +18,8 @@ from api_v1.system.dependencies import (
     get_all_permissions_by_admin,
     protect_same_permission,
 )
-from api_v1.system.schemas import AdminCreate, AdminDataOut, AdminPermission
+from api_v1.system.schemas import AdminCreate, AdminDataOut
+from core.enums import AdminPermission
 
 router = APIRouter(prefix="/system", tags=["System"])
 

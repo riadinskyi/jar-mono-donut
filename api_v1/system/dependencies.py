@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.system.schemas import AdminPermission
+from core.enums import AdminPermission
 from core import Permission
 from core.models.admin import Admin
 
