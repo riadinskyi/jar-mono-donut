@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, HTTPException
 from fastapi.params import Header, Path, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.auth import get_current_admin
+from core import Admin
 from core.db_helper import db_helper
 from api_v1.system.crud import (
     issue_new_admin,
@@ -17,8 +19,10 @@ from api_v1.system.dependencies import (
     request_jar_info,
     get_all_permissions_by_admin,
     protect_same_permission,
+    validate_action_to_perform,
 )
-from api_v1.system.schemas import AdminCreate, AdminDataOut, AdminPermission
+from api_v1.system.schemas import AdminCreate, AdminDataOut
+from core.enums import AdminPermission
 
 router = APIRouter(prefix="/system", tags=["System"])
 
@@ -32,10 +36,18 @@ router = APIRouter(prefix="/system", tags=["System"])
 async def create_admin(
     data_in: AdminCreate,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
 ):
     """
     Функція створює адміністратора, який зможе керувати інституціями
     """
+    # Перевірка наявності відповідного дозволу на створення замовлення
+    await validate_action_to_perform(
+        required_permission=AdminPermission.issue_new_admin,
+        session=session,
+        admin=admin,
+    )
+
     return await issue_new_admin(data_in=data_in, session=session)
 
 
@@ -43,21 +55,41 @@ async def create_admin(
     "/admin/get_info", response_model=AdminDataOut, summary="Дані про адміністратора"
 )
 async def get_admin_info(
-    admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+    admin_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
 ):
     """
-
-    :return: Дані що
-    знайшлися про адміністратора з таким ID
+    Дані що знайшлися про адміністратора з таким ID
     """
-    return await get_admin_by_id(admin_id=admin_id, session=session)
+    await validate_action_to_perform(
+        admin=admin,
+        session=session,
+        required_permission=AdminPermission.read_other_permission,
+    )
+
+    admin_data = await get_admin_by_id(admin_id=admin_id, session=session)
+    return admin_data
 
 
 @router.delete("/admin/delete", summary="Видалити адміністратора")
 async def delete_admin_by_id(
-    admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+    admin_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
 ):
     """Видалити адміністратора за ID"""
+    # Перевірка наявності дозволу видалення адміністратора
+    await validate_action_to_perform(
+        required_permission=AdminPermission.delete_admin, session=session, admin=admin
+    )
+    # Заборона видалення самого себе
+    if admin_id == admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You can't delete yourself",
+        )
+
     admin = await get_admin_by_id(admin_id=admin_id, session=session)
     return await admin_delete(admin=admin, session=session)
 
@@ -71,11 +103,17 @@ async def issue_new_permission(
     admin_id: int,
     permission_type: AdminPermission,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
 ):
     """
-    Надання нового дозволу для адміністратора
-    :return:
+    Випуск нового дозволу для адміністратора.
     """
+    # Доступ тільки з відповідним дозволом
+    await validate_action_to_perform(
+        required_permission=AdminPermission.issue_new_permission,
+        session=session,
+        admin=admin,
+    )
     # Перевірка чи не було випущено дозволу для цього адміністратора
     await protect_same_permission(admin_id, permission_type, session)
 
@@ -86,15 +124,24 @@ async def issue_new_permission(
 
 
 @router.get("/admin/my/all_permissions")
-async def get_my_permissions():
-    """Повернути всі дозволи, які закріплені за адміністратором"""
-    pass
+async def get_my_permissions(
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
+):
+    """Повернути всі дозволи, які закріплені за поточним адміністратором"""
+    return await get_all_permissions_by_admin(admin_id=admin.id, session=session)
 
 
 @router.get("/admin/all_permissions/{admin_id}", summary="Всі дозволи адміністратора")
 async def get_all_permissions(
-    admin_id: int, session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+    admin_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
 ):
+    await validate_action_to_perform(
+        AdminPermission.read_other_permission, session=session, admin=admin
+    )
+
     return await get_all_permissions_by_admin(admin_id=admin_id, session=session)
 
 
@@ -102,10 +149,17 @@ async def get_all_permissions(
 async def permission_delete(
     permission_id: int,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
 ):
     """
     Видалення дозволу для певного адміністратора
     """
+    await validate_action_to_perform(
+        required_permission=AdminPermission.revoked_permission,
+        session=session,
+        admin=admin,
+    )
+
     return await delete_permission_for_admin(
         permission_id=permission_id, session=session
     )

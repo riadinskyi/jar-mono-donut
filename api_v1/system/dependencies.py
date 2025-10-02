@@ -7,9 +7,21 @@ from requests.exceptions import HTTPError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.system.schemas import AdminPermission
+from core.enums import AdminPermission
 from core import Permission
 from core.models.admin import Admin
+
+
+async def validate_action_to_perform(
+    required_permission: AdminPermission,
+    session: AsyncSession,
+    admin: Admin,
+):
+    """Надавати доступ після успішної авторизації"""
+    await check_permission_to_perform(
+        admin_id=admin.id, permission=required_permission, session=session
+    )
+    return True
 
 
 async def get_all_permissions_by_admin(
