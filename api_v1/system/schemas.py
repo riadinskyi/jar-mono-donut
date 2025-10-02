@@ -14,4 +14,5 @@ class AdminCreate(AdminBase):
 
 class AdminDataOut(BaseModel):
     id: int
+    user_name: str
     name: str
