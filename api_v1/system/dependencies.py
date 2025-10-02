@@ -12,6 +12,18 @@ from core import Permission
 from core.models.admin import Admin
 
 
+async def validate_action_to_perform(
+    required_permission: AdminPermission,
+    session: AsyncSession,
+    admin: Admin,
+):
+    """Надавати доступ після успішної авторизації"""
+    await check_permission_to_perform(
+        admin_id=admin.id, permission=required_permission, session=session
+    )
+    return True
+
+
 async def get_all_permissions_by_admin(
     admin_id: int,
     session: AsyncSession,
