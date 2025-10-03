@@ -36,7 +36,7 @@
 - Токен розробника від [Монобанк](https://monobank.ua/api-docs/monobank)
 
 
-## Generate PEM keys
+## 🔑 Generate PEM keys
 ```Shell
 ### Generate A RSA private key, size 2048 
 openssl genrsa -out jwt-private.pem 2048
