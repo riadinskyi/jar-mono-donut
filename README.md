@@ -10,7 +10,7 @@
 
 
 ### 💸 Support projct
-<a href="https://send.monobank.ua/jar/6dpG1MjjQb" target="_blank"><img src="https://github.com/riadinskyi/city-alert-registry/blob/master/support-with-monobank-git.png?raw=true" alt="Support with Monobank" height="41" width="180"></a>
+<a href="https://send.monobank.ua/jar/6dpG1MjjQb" target="_blank"><img src="https://github.com/riadinskyi/city-alert-registry/blob/master/Support%20by%20mono%20jar-github%20button.png?raw=true" alt="Support with Monobank" height="41" width="180"></a>
 
 
 ## Important 
@@ -32,4 +32,16 @@
 ## ⚠️ Requirements
 - Python 3.9+
 - Poetry
+- RSA keys
 - Токен розробника від [Монобанк](https://monobank.ua/api-docs/monobank)
+
+
+## Generate PEM keys
+```Shell
+### Generate A RSA private key, size 2048 
+openssl genrsa -out jwt-private.pem 2048
+```
+```shell
+### Generate A RSA public key from the private key, which can be used in certification
+openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
+```
