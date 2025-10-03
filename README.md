@@ -32,4 +32,16 @@
 ## ⚠️ Requirements
 - Python 3.9+
 - Poetry
+- RSA keys
 - Токен розробника від [Монобанк](https://monobank.ua/api-docs/monobank)
+
+
+## Generate PEM keys
+```Shell
+### Generate A RSA private key, size 2048 
+openssl genrsa -out jwt-private.pem 2048
+```
+```shell
+### Generate A RSA public key from the private key, which can be used in certification
+openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
+```
