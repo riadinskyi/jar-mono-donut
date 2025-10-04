@@ -5,8 +5,13 @@ from fastapi.params import Header, Path, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth import get_current_admin
+
 from core import Admin
 from core.db_helper import db_helper
+from core.enums import (
+    AdminPermission,
+)  # Імпорт усіх можливих типів дозволів для адміністратора
+
 from api_v1.system.crud import (
     issue_new_admin,
     get_admin_by_id,
@@ -26,8 +31,6 @@ from api_v1.system.dependencies import (
     validate_action_to_perform,
     check_system_token_to_auth,
 )
-from api_v1.system.schemas import AdminCreate, AdminDataOut
-from core.enums import AdminPermission
 
 router = APIRouter(prefix="/system", tags=["System"])
 
@@ -68,7 +71,7 @@ async def create_admin_by_system(
     data_in: AdminCreate,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-# Перевірка, що токен є правильним.
+    # Перевірка, що токен є правильним.
     await check_system_token_to_auth(
         token=system_token
     )  # Перевірка, що токен є правильним
