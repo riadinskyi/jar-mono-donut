@@ -21,6 +21,7 @@ from api_v1.system.dependencies import (
     get_all_permissions_by_admin,
     protect_same_permission,
     validate_action_to_perform,
+    check_system_token_to_auth,
 )
 from api_v1.system.schemas import AdminCreate, AdminDataOut
 from core.enums import AdminPermission
@@ -29,7 +30,7 @@ router = APIRouter(prefix="/system", tags=["System"])
 
 
 @router.post(
-    "/admin/create",
+    "/admin/create/by-admin",
     response_model=AdminDataOut,
     summary="Створити адміністратора",
     description="Випуск нового адміністратора",
@@ -49,6 +50,25 @@ async def create_admin(
         admin=admin,
     )
 
+    return await issue_new_admin(data_in=data_in, session=session)
+
+
+@router.post(
+    "/admin/create/by-system",
+    description="Створити адміністратора зі сторони системи",
+    response_model=AdminDataOut,
+)
+async def create_admin_by_system(
+    system_token: Annotated[
+        str, Header(description="Токен доступу отриманий від адміністрації системи")
+    ],
+    data_in: AdminCreate,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+# Перевірка, що токен є правильним.
+    await check_system_token_to_auth(
+        token=system_token
+    )  # Перевірка, що токен є правильним
     return await issue_new_admin(data_in=data_in, session=session)
 
 

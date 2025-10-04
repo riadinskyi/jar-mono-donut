@@ -7,8 +7,9 @@ from requests.exceptions import HTTPError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.enums import AdminPermission
 from core import Permission
+from core.config import system_token
+from core.enums import AdminPermission
 from core.models.admin import Admin
 
 
@@ -21,6 +22,19 @@ async def validate_action_to_perform(
     await check_permission_to_perform(
         admin_id=admin.id, permission=required_permission, session=session
     )
+    return True
+
+
+async def check_system_token_to_auth(token: str):
+    """Перевіряти токен на валідність, щоб створити адміністратора від імені системи"""
+    if token is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+    if token != system_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="token is not valid"
+        )
     return True
 
 
