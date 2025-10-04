@@ -15,6 +15,9 @@ from api_v1.system.crud import (
     delete_permission_for_admin,
     return_permission_by_id,
 )
+
+from api_v1.system.schemas import AdminCreate, AdminDataOut
+
 from api_v1.system.dependencies import (
     request_all_jars,
     request_jar_info,
@@ -118,7 +121,7 @@ async def delete_admin_by_id(
 
 
 @router.post(
-    "/permission/issue",
+    "/permission/issue/by-admin",
     status_code=status.HTTP_201_CREATED,
     summary="Випуск дозволу для адміністратора",
 )
@@ -143,6 +146,28 @@ async def issue_new_permission(
     admin = await get_admin_by_id(admin_id=admin_id, session=session)
     return await issue_permission_for_admin(
         admin=admin, permission=permission_type, session=session
+    )
+
+
+@router.post(
+    "/permission/issue/by-system",
+    status_code=status.HTTP_201_CREATED,
+)
+async def issue_permission_by_system(
+    system_token: str,
+    admin_id: int,
+    permission_type: AdminPermission,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    # 1 - Перевірка, що токен є правильним
+    await check_system_token_to_auth(token=system_token)
+    # 2 - Отримання даних про адміністратора для якого випускається дозвіл
+    admin_data = await get_admin_by_id(admin_id=admin_id, session=session)
+    # 3- Перевірка чи не було випущено дозволу для цього адміністратора
+    await protect_same_permission(admin_id, permission_type, session)
+    # 4 - Випуск самого дозволу для адміністратора
+    return await issue_permission_for_admin(
+        admin=admin_data, permission=permission_type, session=session
     )
 
 
