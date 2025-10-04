@@ -9,8 +9,8 @@
 > Джерелом данних є офіційне АПІ Монобанк.
 
 
-### 💸 Support projct
-<a href="https://send.monobank.ua/jar/6dpG1MjjQb" target="_blank"><img src="https://github.com/riadinskyi/city-alert-registry/blob/master/support-with-monobank-git.png?raw=true" alt="Support with Monobank" height="41" width="180"></a>
+### 💸 Support author
+<a href="https://send.monobank.ua/jar/6dpG1MjjQb" target="_blank"><img src="https://raw.githubusercontent.com/riadinskyi/city-alert-registry/refs/heads/master/Support%20by%20mono%20jar-github%20button.png" alt="Support with Monobank" height="41" width="180"></a>
 
 
 ## Important 
