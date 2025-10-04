@@ -89,6 +89,15 @@ async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
     check_user_name = await check_user_name_availability(
         user_name=data_in.user_name, session=session
     )
+
+    # make username in lower case
+    data_in.user_name = data_in.user_name.lower()
+    # raise error if username contains spaces
+    if " " in data_in.user_name:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="user_name cannot contain spaces",
+        )
     if check_user_name:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
