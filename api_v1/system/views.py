@@ -15,6 +15,7 @@ from core.enums import (
 from api_v1.system.crud import (
     issue_new_admin,
     get_admin_by_id,
+    get_all_permissions_by_admin,
     admin_delete,
     issue_permission_for_admin,
     delete_permission_for_admin,
@@ -26,7 +27,6 @@ from api_v1.system.schemas import AdminCreate, AdminDataOut
 from api_v1.system.dependencies import (
     request_all_jars,
     request_jar_info,
-    get_all_permissions_by_admin,
     protect_same_permission,
     validate_action_to_perform,
     check_system_token_to_auth,

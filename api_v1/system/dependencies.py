@@ -7,7 +7,6 @@ from requests.exceptions import HTTPError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core import Permission
 from core.config import system_token
 from core.enums import AdminPermission
 from core.models.admin import Admin
@@ -38,23 +37,12 @@ async def check_system_token_to_auth(token: str):
     return True
 
 
-async def get_all_permissions_by_admin(
-    admin_id: int,
-    session: AsyncSession,
-):
-    """
-    Повернути всі видані дозволи для певного адміністратора.
-    """
-    stmt = select(Permission).where(Permission.admin_id == admin_id)
-    result = await session.execute(stmt)
-    permissions = result.scalars().all()
-    return permissions
-
-
 async def check_permission_to_perform(
     admin_id: int, permission: AdminPermission, session: AsyncSession
 ) -> bool:
     """Перевірити чи є в адміністратора дозвіл на виконання цієї дії"""
+    from api_v1.system.crud import get_all_permissions_by_admin
+
     personal_permissions = await get_all_permissions_by_admin(
         admin_id=admin_id, session=session
     )
@@ -76,6 +64,8 @@ async def protect_same_permission(
     """
     Checks if the given permission is already assigned.
     """
+    from api_v1.system.crud import get_all_permissions_by_admin
+
     all_permissions = await get_all_permissions_by_admin(
         admin_id=admin_id, session=session
     )

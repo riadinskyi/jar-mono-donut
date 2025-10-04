@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Admin, Permission
 from .schemas import AdminCreate
 from core.enums import AdminPermission
-from .dependencies import check_user_name_availability, get_all_permissions_by_admin
+from .dependencies import check_user_name_availability
 from core.utils import hash_password
 
 
@@ -33,6 +33,19 @@ async def issue_permission_for_admin(
     await session.commit()
     await session.refresh(new_permission)
     return new_permission
+
+
+async def get_all_permissions_by_admin(
+    admin_id: int,
+    session: AsyncSession,
+):
+    """
+    Повернути всі видані дозволи для певного адміністратора.
+    """
+    stmt = select(Permission).where(Permission.admin_id == admin_id)
+    result = await session.execute(stmt)
+    permissions = result.scalars().all()
+    return permissions
 
 
 async def delete_permission_for_admin(permission_id: int, session: AsyncSession):
