@@ -41,7 +41,7 @@ async def create_admin(
     """
     Функція створює адміністратора, який зможе керувати інституціями
     """
-    # Перевірка наявності відповідного дозволу на створення замовлення
+    # Перевірка наявності відповідного дозволу на створення адміністратора
     await validate_action_to_perform(
         required_permission=AdminPermission.issue_new_admin,
         session=session,
@@ -130,7 +130,7 @@ async def get_my_permissions(
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
     admin: Admin = Depends(get_current_admin),
 ):
-    """Повернути всі дозволи, які закріплені за поточним адміністратором"""
+    """Повернути всі дозволи, які закріплені за адміністратором"""
     return await get_all_permissions_by_admin(admin_id=admin.id, session=session)
 
 
@@ -154,7 +154,7 @@ async def permission_delete(
     admin: Admin = Depends(get_current_admin),
 ):
     """
-    Видалення дозволу для певного адміністратора
+    Видалення дозволу певного дозволу для певного адміністратора
     """
     await validate_action_to_perform(
         required_permission=AdminPermission.revoked_permission,
@@ -194,5 +194,4 @@ async def get_jar_info(
     ],
 ):
     """Повертає останні транзакції по банці (рахунку)"""
-
     return await request_jar_info(api_token, jar_id)
