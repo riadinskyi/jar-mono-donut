@@ -75,7 +75,6 @@ async def issue_new_admin(data_in: AdminCreate, session: AsyncSession):
         user_name=data_in.user_name,
         name=data_in.name,
         password=hs_pw,
-        permission_id=data_in.permission_id,
     )
     session.add(new_admin)
     await session.commit()

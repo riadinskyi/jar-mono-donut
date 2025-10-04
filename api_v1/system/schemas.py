@@ -9,7 +9,7 @@ class AdminBase(BaseModel):
 
 
 class AdminCreate(AdminBase):
-    permission_id: int
+    pass
 
 
 class AdminDataOut(BaseModel):

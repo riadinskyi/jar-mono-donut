@@ -28,7 +28,6 @@ async def get_me(admin=Depends(get_current_admin)):
         "id": admin.id,
         "user_name": admin.user_name,
         "name": admin.name,
-        "permission_id": admin.permission_id,
     }
 
 
