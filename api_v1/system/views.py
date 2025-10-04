@@ -13,6 +13,7 @@ from api_v1.system.crud import (
     admin_delete,
     issue_permission_for_admin,
     delete_permission_for_admin,
+    return_permission_by_id,
 )
 from api_v1.system.dependencies import (
     request_all_jars,
@@ -132,6 +133,23 @@ async def get_my_permissions(
 ):
     """Повернути всі дозволи, які закріплені за адміністратором"""
     return await get_all_permissions_by_admin(admin_id=admin.id, session=session)
+
+
+@router.get("/admin/permission/{permission_id}")
+async def permission_by_id(
+    permission_id: int,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+    admin: Admin = Depends(get_current_admin),
+):
+    await validate_action_to_perform(
+        admin=admin,
+        required_permission=AdminPermission.read_other_permission,
+        session=session,
+    )
+    permission = await return_permission_by_id(
+        permission_id=permission_id, session=session
+    )
+    return permission
 
 
 @router.get("/admin/all_permissions/{admin_id}", summary="Всі дозволи адміністратора")

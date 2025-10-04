@@ -9,6 +9,16 @@ from .dependencies import check_user_name_availability, get_all_permissions_by_a
 from core.utils import hash_password
 
 
+async def return_permission_by_id(
+    permission_id: int, session: AsyncSession
+) -> Permission:
+    """Повернути дозвіл за унікальним ідентифікатором"""
+    permission = await session.get(Permission, permission_id)
+    if not permission:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Permission is not found")
+    return permission
+
+
 async def issue_permission_for_admin(
     admin: Admin, permission: AdminPermission, session: AsyncSession
 ):
