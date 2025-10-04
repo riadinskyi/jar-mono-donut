@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, status, HTTPException
-from fastapi.params import Header, Path, Depends
+from fastapi.params import Header, Path, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth import get_current_admin
@@ -74,7 +74,9 @@ async def get_admin_info(
 
 @router.delete("/admin/delete", summary="Видалити адміністратора")
 async def delete_admin_by_id(
-    admin_id: int,
+    admin_id: Annotated[
+        int, Query(description="Унікальний ідентифікатор користувача", gt=0)
+    ],
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
     admin: Admin = Depends(get_current_admin),
 ):
