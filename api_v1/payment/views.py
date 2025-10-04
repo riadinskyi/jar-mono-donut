@@ -51,7 +51,7 @@ async def find_payment(
     return {"data": data, "signature": await encode_jwt(data)}
 
 
-@router.post("/add/payments")
+@router.post("/update/existing_payments")
 async def add_new_payments(
     monobank_token: str = Header(),
     jar_id: str = Query(),
