@@ -32,11 +32,22 @@ from api_v1.system.dependencies import (
     check_system_token_to_auth,
 )
 
-router = APIRouter(prefix="/system", tags=["System"])
+account_router = APIRouter(
+    prefix="/system",
+    tags=["System"],
+)
+admin_router = APIRouter(
+    prefix="/admin",
+    tags=["Admin", "System"],
+)
+permission_router = APIRouter(
+    prefix="/permission",
+    tags=["Permission", "System"],
+)
 
 
-@router.post(
-    "/admin/create/by-admin",
+@admin_router.post(
+    "/create/by-admin",
     response_model=AdminDataOut,
     summary="Створити адміністратора",
     description="Випуск нового адміністратора",
@@ -59,8 +70,8 @@ async def create_admin(
     return await issue_new_admin(data_in=data_in, session=session)
 
 
-@router.post(
-    "/admin/create/by-system",
+@admin_router.post(
+    "/create/by-system",
     description="Створити адміністратора зі сторони системи",
     response_model=AdminDataOut,
 )
@@ -78,8 +89,8 @@ async def create_admin_by_system(
     return await issue_new_admin(data_in=data_in, session=session)
 
 
-@router.get(
-    "/admin/get_info", response_model=AdminDataOut, summary="Дані про адміністратора"
+@admin_router.get(
+    "/get_info", response_model=AdminDataOut, summary="Дані про адміністратора"
 )
 async def get_admin_info(
     admin_id: int,
@@ -99,7 +110,7 @@ async def get_admin_info(
     return admin_data
 
 
-@router.delete("/admin/delete", summary="Видалити адміністратора")
+@admin_router.delete("/delete", summary="Видалити адміністратора")
 async def delete_admin_by_id(
     admin_id: Annotated[
         int, Query(description="Унікальний ідентифікатор користувача", gt=0)
@@ -123,8 +134,8 @@ async def delete_admin_by_id(
     return await admin_delete(admin=admin, session=session)
 
 
-@router.post(
-    "/permission/issue/by-admin",
+@permission_router.post(
+    "/issue/by-admin",
     status_code=status.HTTP_201_CREATED,
     summary="Випуск дозволу для адміністратора",
 )
@@ -152,8 +163,8 @@ async def issue_new_permission(
     )
 
 
-@router.post(
-    "/permission/issue/by-system",
+@permission_router.post(
+    "/issue/by-system",
     status_code=status.HTTP_201_CREATED,
 )
 async def issue_permission_by_system(
@@ -174,7 +185,7 @@ async def issue_permission_by_system(
     )
 
 
-@router.get("/admin/my/all_permissions")
+@admin_router.get("/my/all_permissions")
 async def get_my_permissions(
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
     admin: Admin = Depends(get_current_admin),
@@ -183,7 +194,7 @@ async def get_my_permissions(
     return await get_all_permissions_by_admin(admin_id=admin.id, session=session)
 
 
-@router.get("/admin/permission/{permission_id}")
+@permission_router.get("/{permission_id}")
 async def permission_by_id(
     permission_id: int,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -200,7 +211,10 @@ async def permission_by_id(
     return permission
 
 
-@router.get("/admin/all_permissions/{admin_id}", summary="Всі дозволи адміністратора")
+@admin_router.get(
+    "/all_permissions/{admin_id}",
+    summary="Всі дозволи певного адміністратора адміністратора",
+)
 async def get_all_permissions(
     admin_id: int,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -213,7 +227,7 @@ async def get_all_permissions(
     return await get_all_permissions_by_admin(admin_id=admin_id, session=session)
 
 
-@router.delete("/permission/delete", summary="Видалити дозвіл")
+@permission_router.delete("/delete", summary="Видалити дозвіл")
 async def permission_delete(
     permission_id: int,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -233,7 +247,7 @@ async def permission_delete(
     )
 
 
-@router.get(
+@account_router.get(
     "/get_all_jars",
     summary="Всі рахунки",
     description="Повернення всіх рахунків, які закріплені за таким токеном",
@@ -248,7 +262,7 @@ async def get_client_info(
     return await request_all_jars(token=api_token)
 
 
-@router.get(
+@account_router.get(
     "/get_jar_info/{jar_id}",
     description="Повернення виписки за банківським рахунком певного користувача",
     summary="Виписка за рахунком",
