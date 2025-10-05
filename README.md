@@ -35,6 +35,12 @@
 - RSA keys
 - Токен розробника від [Монобанк](https://monobank.ua/api-docs/monobank)
 
+# Env settings
+- SYSTEM_TOKEN - to let to create admin and manage permission of the name of the system
+- SERVICE_TOKEN - to let access to the API endpoints which gonna with other APIs services
+
+
+
 
 ## Generate PEM keys
 ```Shell

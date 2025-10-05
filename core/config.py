@@ -11,8 +11,8 @@ DB_PATH = BASE_DIR / "db.sqlite3"
 load_dotenv()
 system_token = os.getenv(
     "SYSTEM_TOKEN"
-)  # token for creation admin from the name of system
-service_token = os.getenv("SERVICE_TOKEN")  # token for other API system
+)  # token for creation admin from the name of a system
+service_token = os.getenv("SERVICE_TOKEN")  # token for another API system
 
 
 class DbSettings(BaseModel):
