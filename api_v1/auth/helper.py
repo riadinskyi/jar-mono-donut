@@ -1,9 +1,8 @@
 import bcrypt
-from fastapi import Form, HTTPException, status, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi import Form, HTTPException, status, Depends, Security
 from fastapi.security import (
     OAuth2PasswordBearer,
+    APIKeyHeader,
 )
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +10,7 @@ import jwt
 
 from core import Admin, db_helper
 from core.utils import decode_jwt
+from core.config import operation_token as OPERATION_TOKEN
 
 
 security = OAuth2PasswordBearer(tokenUrl="token")
@@ -97,3 +97,37 @@ async def get_current_admin(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return admin
+
+
+# OpenAPI security scheme for operation token in header
+operation_api_key = APIKeyHeader(
+    name="X-Operation-Token", auto_error=False, scheme_name="OperationToken"
+)
+
+
+async def auth_by_operation_token(token: str | None = Security(operation_api_key)):
+    """
+    Validate a plain operation token passed via a custom header.
+    - Header: X-Operation-Token: <OPERATION_TOKEN>
+    This dependency is defined with APIKeyHeader + Security, so Swagger shows an Authorize input
+    named "OperationToken" and sends the header automatically for protected endpoints.
+    """
+    if not OPERATION_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Operation token not configured",
+        )
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="X-Operation-Token header required",
+        )
+
+    if token != OPERATION_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid operation token",
+        )
+
+    return True
