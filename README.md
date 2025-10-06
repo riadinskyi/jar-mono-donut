@@ -54,7 +54,7 @@ curl -H "X-Operation-Token: $OPERATION_TOKEN" \
 
 
 
-## Generate PEM keys
+## 🔑 Generate PEM keys
 ```Shell
 ### Generate A RSA private key, size 2048 
 openssl genrsa -out jwt-private.pem 2048
