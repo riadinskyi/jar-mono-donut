@@ -36,9 +36,20 @@
 - Токен розробника від [Монобанк](https://monobank.ua/api-docs/monobank)
 
 # Env settings
-- SYSTEM_TOKEN - to let to create admin and manage permission of the name of the system
-- SERVICE_TOKEN - to let access to the API endpoints which gonna with other APIs services
 - SYSTEM_TOKEN — Токен для створення адміністраторів та випуску дозволів, від імені системи. (наприклад, коли ще немає жодного адміністратора)
+- OPERATION_TOKEN — простий рядок, що використовується для авторизації доступу до кінцевих точок оплати через спеціальний заголовок, наприклад, для іншого API.
+
+## Payments authorization
+All /payment endpoints require a custom header with a plain token from env:
+
+- Header: X-Operation-Token: <OPERATION_TOKEN>
+
+Example:
+
+```bash
+curl -H "X-Operation-Token: $OPERATION_TOKEN" \
+     "http://localhost:8000/api/v1/payment/get/by-id?payment_id=1"
+```
 
 
 
