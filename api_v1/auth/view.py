@@ -4,11 +4,12 @@ from api_v1.auth.helper import authenticate_admin, get_current_admin
 from core.utils import encode_jwt, decode_jwt, encode_refresh_jwt
 from fastapi import Body
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+# OAuth2 password flow common endpoint at root level
+router = APIRouter(tags=["Auth"])
 
 
-@router.post("/login")
-async def login(admin=Depends(authenticate_admin)):
+@router.post("/token")
+async def token(admin=Depends(authenticate_admin)):
     payload = {
         "sub": str(admin.id),
         "user_name": str(admin.user_name),

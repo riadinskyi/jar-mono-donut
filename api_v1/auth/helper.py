@@ -1,6 +1,10 @@
 import bcrypt
 from fastapi import Form, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Form, HTTPException, status, Depends, Security
+from fastapi.security import (
+    OAuth2PasswordBearer,
+)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
@@ -9,7 +13,7 @@ from core import Admin, db_helper
 from core.utils import decode_jwt
 
 
-security = HTTPBearer()
+security = OAuth2PasswordBearer(tokenUrl="token")
 
 
 async def validate_password(
@@ -24,10 +28,19 @@ async def validate_password(
 
 async def authenticate_admin(
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-    user_name: str = Form(...),
+    user_name: str = Form(None),
+    username: str | None = Form(None),
     password: str = Form(...),
 ) -> Admin:
-    result = await session.execute(select(Admin).where(Admin.user_name == user_name))
+    effective_user_name = user_name or username
+    if not effective_user_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="'user_name' or 'username' is required",
+        )
+    result = await session.execute(
+        select(Admin).where(Admin.user_name == effective_user_name)
+    )
     admin = result.scalars().first()
     if not admin or not await validate_password(
         password,
@@ -42,10 +55,9 @@ async def authenticate_admin(
 
 
 async def get_current_admin(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    token: str = Depends(security),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> Admin:
-    token = credentials.credentials
     try:
         payload = await decode_jwt(token)
     except jwt.ExpiredSignatureError:
