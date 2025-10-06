@@ -1,6 +1,6 @@
-## Mono Jar Donut
+## Mono Jar Donut {ßeta}
 
-### ßeta Open Banking рішення для клієнтів Monobank.  
+### Open Banking рішення для клієнтів Monobank. 
 > [!NOTE]
 > Волонтерський API агрегатор для автоматичної обробки донацій, що надійшли на рахунок банки.
 >
