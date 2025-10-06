@@ -4,7 +4,7 @@ from fastapi import APIRouter, status, HTTPException
 from fastapi.params import Header, Path, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.auth import get_current_admin
+from api_v1.auth import get_current_admin, auth_by_operation_token
 
 from core import Admin
 from core.db_helper import db_helper
@@ -35,6 +35,7 @@ from api_v1.system.dependencies import (
 account_router = APIRouter(
     prefix="/system",
     tags=["System"],
+    dependencies=[Depends(auth_by_operation_token)],
 )
 admin_router = APIRouter(
     prefix="/admin",
