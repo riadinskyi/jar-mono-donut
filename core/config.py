@@ -2,10 +2,18 @@ from pathlib import Path
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent.parent
 
 DB_PATH = BASE_DIR / "db.sqlite3"
+
+load_dotenv()
+system_token = os.getenv(
+    "SYSTEM_TOKEN"
+)  # token for creation admin from the name of a system
+service_token = os.getenv("SERVICE_TOKEN")  # token for another API system
+operation_token = os.getenv("OPERATION_TOKEN")  # token for simple operation auth
 
 
 class DbSettings(BaseModel):
