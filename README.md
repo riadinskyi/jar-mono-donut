@@ -38,6 +38,7 @@
 # Env settings
 - SYSTEM_TOKEN - to let to create admin and manage permission of the name of the system
 - SERVICE_TOKEN - to let access to the API endpoints which gonna with other APIs services
+- SYSTEM_TOKEN — Токен для створення адміністраторів та випуску дозволів, від імені системи. (наприклад, коли ще немає жодного адміністратора)
 
 
 
