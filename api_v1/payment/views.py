@@ -12,8 +12,9 @@ from core.utils import encode_jwt
 from api_v1.order.crud import search_payment
 from api_v1.payment.crud import update_all_jars_payments
 from api_v1.payment.schemas import PaymentSearch, PaymentDescriptionData
+from api_v1.auth import auth_by_operation_token
 
-router = APIRouter(prefix="/payment", tags=["Payment"])
+router = APIRouter(prefix="/payment", tags=["Payment"], dependencies=[Depends(auth_by_operation_token)])
 
 
 @router.get("/get/by-id")
