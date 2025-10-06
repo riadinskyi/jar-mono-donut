@@ -45,3 +45,32 @@ openssl genrsa -out jwt-private.pem 2048
 ### Generate A RSA public key from the private key, which can be used in certification
 openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
 ```
+# Env settings
+- SYSTEM_TOKEN — Токен для створення адміністраторів та випуску дозволів, від імені системи. (наприклад, коли ще немає жодного адміністратора)
+- OPERATION_TOKEN — простий рядок, що використовується для авторизації доступу до кінцевих точок оплати через спеціальний заголовок, наприклад, для іншого API.
+
+## Payments authorization
+All /payment endpoints require a custom header with a plain token from env:
+
+- Header: X-Operation-Token: <OPERATION_TOKEN>
+
+Example:
+
+```bash
+curl -H "X-Operation-Token: $OPERATION_TOKEN" \
+     "http://localhost:8000/api/v1/payment/get/by-id?payment_id=1"
+```
+
+
+
+
+## 🔑 Generate PEM keys
+```Shell
+### Generate A RSA private key, size 2048 
+openssl genrsa -out jwt-private.pem 2048
+```
+```shell
+### Generate A RSA public key from the private key, which can be used in certification
+openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
+```
+

@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi.params import Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.auth import auth_by_operation_token
 from api_v1.order.crud import (
     issue_new_order,
     validate_order,
@@ -16,7 +17,9 @@ from api_v1.order.schemas import (
 )
 from core import db_helper
 
-router = APIRouter(prefix="/order", tags=["Order"])
+router = APIRouter(
+    prefix="/order", tags=["Order"], dependencies=[Depends(auth_by_operation_token)]
+)
 
 
 @router.get("/get/by-id", response_model=OrderOut)
