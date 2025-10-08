@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.order.dependencies import (
@@ -15,6 +16,18 @@ from api_v1.order.schemas import (
 from api_v1.payment.dependencies import return_payment_by_id
 from api_v1.payment.schemas import PaymentSearch
 from core.models.order import Order, OrderStatus
+
+
+
+
+async def return_order_by_id(order_id: int, session: AsyncSession) -> Order:
+    stmt = select(Order).where(Order.id == order_id)
+    result = await session.execute(stmt)
+    order = result.scalar_one_or_none()
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    return order
+
 
 
 async def validate_order(

@@ -8,9 +8,8 @@ from api_v1.auth import auth_by_operation_token
 from api_v1.order.crud import (
     issue_new_order,
     validate_order,
-    delete_order,
+    delete_order, return_order_by_id,
 )
-from api_v1.order.dependencies import return_order_by_id
 from api_v1.order.schemas import (
     OrderCreate,
     OrderOut,
