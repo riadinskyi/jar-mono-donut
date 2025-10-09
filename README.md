@@ -64,7 +64,7 @@ openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
 - OPERATION_TOKEN — простий рядок, що використовується для авторизації доступу до кінцевих точок оплати через спеціальний заголовок, наприклад, для іншого API.
 
 ## Payments authorization
-All /payment endpoints require a custom header with a plain token from env:
+All `/payment` and `/order` endpoints require a custom header with a plain token from env:
 
 - Header: X-Operation-Token: <OPERATION_TOKEN>
 
