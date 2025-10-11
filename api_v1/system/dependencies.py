@@ -24,18 +24,6 @@ async def validate_action_to_perform(
     return True
 
 
-async def check_system_token_to_auth(token: str):
-    """Перевіряти токен на валідність, щоб створити адміністратора від імені системи"""
-    if token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-    if token != system_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="token is not valid"
-        )
-    return True
-
 
 async def check_permission_to_perform(
     admin_id: int, permission: AdminPermission, session: AsyncSession
@@ -75,8 +63,7 @@ async def protect_same_permission(
     if permission_exists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Permission '{permission.name}' already exists for admin ID {admin_id}. Duplication avoided.",
-        )
+            detail=f"Permission '{permission.name}' already exists for admin ID {admin_id}. Duplication avoided.",)
 
 
 async def request_info_about_client(token: str):

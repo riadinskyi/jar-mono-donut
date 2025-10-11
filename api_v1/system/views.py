@@ -11,6 +11,7 @@ from core.db_helper import db_helper
 from core.enums import (
     AdminPermission,
 )  # Імпорт усіх можливих типів дозволів для адміністратора
+from core.utils import check_system_token_to_auth
 
 from api_v1.system.crud import (
     issue_new_admin,
@@ -29,7 +30,6 @@ from api_v1.system.dependencies import (
     request_jar_info,
     protect_same_permission,
     validate_action_to_perform,
-    check_system_token_to_auth,
 )
 
 account_router = APIRouter(
