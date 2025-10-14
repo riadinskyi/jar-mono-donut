@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, status, HTTPException
 from fastapi.params import Header, Path, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 
 from api_v1.auth import get_current_admin, auth_by_operation_token
 
@@ -45,6 +46,24 @@ permission_router = APIRouter(
     prefix="/permission",
     tags=["Permission", "System"],
 )
+
+
+@account_router.get(
+    "/db-health",
+    summary="Database health check",
+    description="Returns status=ok if a simple SELECT 1 against the database succeeds.",
+)
+async def db_health(
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    try:
+        result = await session.execute(text("SELECT 1"))
+        value = result.scalar()
+        if value == 1:
+            return {"status": "ok"}
+        raise HTTPException(status_code=500, detail="Unexpected DB response")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"DB error: {e}")
 
 
 @admin_router.post(
