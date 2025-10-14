@@ -46,6 +46,7 @@
 ## ⚠️ Requirements
 - Python 3.9+
 - Poetry
+- PostgreSQL 13+ (recommended) or any PostgreSQL-compatible managed service
 - RSA keys
 - Токен розробника від [Монобанк](https://monobank.ua/api-docs/monobank)
 
@@ -62,6 +63,13 @@ openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
 # Env settings
 - SYSTEM_TOKEN — Токен для створення адміністраторів та випуску дозволів, від імені системи. (наприклад, коли ще немає жодного адміністратора)
 - OPERATION_TOKEN — простий рядок, що використовується для авторизації доступу до кінцевих точок оплати через спеціальний заголовок, наприклад, для іншого API.
+- DATABASE_URL=dpg-d3jn99er433s739f0su0-a.oregon-postgres.render.com 
+- **For Database**
+  - USER_NAME 
+  - DB_NAME 
+  - PASSWORD
+  - PORT=5432 (usually default)
+
 
 ## Payments authorization
 All `/payment` and `/order` endpoints require a custom header with a plain token from env:
