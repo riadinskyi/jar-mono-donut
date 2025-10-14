@@ -21,10 +21,12 @@ async def check_system_token_to_auth(token: str):
     return True
 
 
-async def hash_password(password: bytes):
+async def hash_password(password: bytes) -> str:
     salt = bcrypt.gensalt()
-    password = bcrypt.hashpw(password, salt)
-    return password
+    hashed = bcrypt.hashpw(password, salt)
+    # store as text, not bytes, to fit VARCHAR columns and avoid psycopg byte adaptation issues
+    # зберігати як текст, а не як байти, щоб уникнути проблеми з postgresql
+    return hashed.decode("utf-8")
 
 
 async def encode_jwt(
