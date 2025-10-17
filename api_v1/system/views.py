@@ -256,6 +256,14 @@ async def permission_delete(
     """
     Видалення дозволу певного дозволу для певного адміністратора
     """
+    #Заборона видалення дозволу для самого себе
+    all_permissions = await get_all_permissions_by_admin(admin_id=admin.id, session=session)
+    for permission in all_permissions:
+        if permission.id == permission_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Permission '{permission.permission_type.name}' cannot delete for admin ID {admin.id}. You cannot delete your permission, contact support for troubleshooting.",)
+
     await validate_action_to_perform(
         required_permission=AdminPermission.revoked_permission,
         session=session,
