@@ -68,7 +68,7 @@ openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
   - USER_NAME 
   - DB_NAME 
   - PASSWORD
-  - PORT=5432 (usually default)
+  - PGPORT=5432 (usually default)
 
 
 ## Payments authorization
